@@ -17,13 +17,13 @@ document.addEventListener("DOMContentLoaded", async () => {
   setupTheme();
   setupNavigation();
   setupModals();
-  
+
   // Configurar listeners de los módulos
   setupEmpleadosModule();
   setupGastosModule();
   setupVentasModule();
   setupReportesModule();
-  
+
   // Cargar datos iniciales de base de datos
   await cargarEmpleadosCache();
   await inicializarDashboard();

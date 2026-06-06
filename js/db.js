@@ -1,14 +1,14 @@
 import { db } from "./firebase-config.js";
-import { 
-  collection, 
-  doc, 
-  setDoc, 
-  getDoc, 
-  getDocs, 
+import {
+  collection,
+  doc,
+  setDoc,
+  getDoc,
+  getDocs,
   addDoc,
-  updateDoc, 
-  query, 
-  where, 
+  updateDoc,
+  query,
+  where,
   orderBy,
   serverTimestamp,
   Timestamp
@@ -103,17 +103,17 @@ const gastosCol = collection(db, "gastos");
 export async function saveGastosDia(fechaStr, datosGasto) {
   try {
     const docRef = doc(db, "gastos", fechaStr);
-    
+
     // Convertir campos numéricos
     const central = parseFloat(datosGasto.central) || 0;
     const comidaBebida = parseFloat(datosGasto.comidaBebida) || 0;
     const gasolina = parseFloat(datosGasto.gasolina) || 0;
     const otros = parseFloat(datosGasto.otros) || 0;
-    
+
     // nominas debe ser un array de objetos o un mapa.
     // Ej: { empleadoId: { nombre: "Juan", monto: 350, asistio: true } }
     const nominas = datosGasto.nominas || {};
-    
+
     // Calcular el gasto en nóminas basado en la asistencia
     let totalNominas = 0;
     Object.values(nominas).forEach(nom => {
@@ -173,7 +173,7 @@ const ventasCol = collection(db, "ventas");
 export async function saveVentasDia(fechaStr, datosVenta) {
   try {
     const docRef = doc(db, "ventas", fechaStr);
-    
+
     const totalVenta = parseFloat(datosVenta.totalVenta) || 0;
     const horasTrabajadas = parseFloat(datosVenta.horasTrabajadas) || 0;
 

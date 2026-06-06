@@ -1,25 +1,25 @@
 import { appState } from "../state.js";
 import { showToast } from "../utils/notifications.js";
 import { inicializarDashboard } from "./dashboard.js";
-import { 
-  getEmpleadosActivos, 
-  getGastosDia, 
-  saveGastosDia 
+import {
+  getEmpleadosActivos,
+  getGastosDia,
+  saveGastosDia
 } from "../db.js";
 
 export async function cargarFormularioGastos(fechaStr) {
   const form = document.getElementById("gasto-form");
   if (!form) return;
-  
+
   form.reset();
-  
+
   // Limpiar campos numéricos
   document.getElementById("gasto-central").value = "";
   document.getElementById("gasto-comida-bebida").value = "";
   document.getElementById("gasto-gasolina").value = "";
   document.getElementById("gasto-otros").value = "";
   document.getElementById("gasto-otros-detalle").value = "";
-  
+
   // Cargar todos los empleados activos para control de asistencia
   const listaAsistencia = document.getElementById("asistencia-payroll-list");
   if (!listaAsistencia) return;
@@ -29,9 +29,9 @@ export async function cargarFormularioGastos(fechaStr) {
       <i class="fa-solid fa-spinner fa-spin"></i> Cargando personal activo...
     </div>
   `;
-  
+
   const activos = await getEmpleadosActivos();
-  
+
   if (activos.length === 0) {
     listaAsistencia.innerHTML = `
       <div style="text-align: center; padding: 20px; color: var(--text-muted); border: 1px dashed var(--border-color); border-radius: var(--radius-sm);">
@@ -42,16 +42,16 @@ export async function cargarFormularioGastos(fechaStr) {
     recalcularTotalGastosPreview();
     return;
   }
-  
+
   // Buscar si ya existen gastos guardados para esta fecha
   const record = await getGastosDia(fechaStr);
   const gastosPreexistentes = record.exists ? record.data : null;
 
   listaAsistencia.innerHTML = "";
-  
+
   activos.forEach(emp => {
     const item = document.createElement("div");
-    
+
     // Determinar si ya existía un registro de asistencia para este empleado en esta fecha
     let asistioVal = true; // Por defecto hoy sí vino
     let sueldoVal = emp.sueldoDiario;
@@ -60,15 +60,15 @@ export async function cargarFormularioGastos(fechaStr) {
       asistioVal = gastosPreexistentes.nominas[emp.id].asistio;
       sueldoVal = gastosPreexistentes.nominas[emp.id].monto;
     }
-    
+
     item.className = `payroll-item ${asistioVal ? 'present-item' : 'absent-item'}`;
     item.setAttribute("data-id", emp.id);
     item.setAttribute("data-nombre", emp.nombre);
     item.setAttribute("data-sueldo", sueldoVal);
-    
+
     const inicial = emp.nombre[0].toUpperCase();
     const formattedSueldo = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(sueldoVal);
-    
+
     item.innerHTML = `
       <div class="payroll-item-left">
         <div class="payroll-item-avatar">${inicial}</div>
@@ -86,7 +86,7 @@ export async function cargarFormularioGastos(fechaStr) {
         </label>
       </div>
     `;
-    
+
     // Listener para cambiar estilos y recalcular nóminas en tiempo real
     item.querySelector(".asistencia-switch").addEventListener("change", (e) => {
       const check = e.target.checked;
@@ -97,24 +97,24 @@ export async function cargarFormularioGastos(fechaStr) {
       }
       recalcularTotalGastosPreview();
     });
-    
+
     listaAsistencia.appendChild(item);
   });
 
   // Pre-rellenar formulario si ya existían gastos
   if (gastosPreexistentes) {
     document.getElementById("gasto-central").value = gastosPreexistentes.central || "";
-    
+
     // Carga con retrocompatibilidad (sumar comidas y bebidas legadas si no existe comidaBebida)
-    const comidaBebidaVal = (gastosPreexistentes.comidaBebida !== undefined) 
-      ? gastosPreexistentes.comidaBebida 
+    const comidaBebidaVal = (gastosPreexistentes.comidaBebida !== undefined)
+      ? gastosPreexistentes.comidaBebida
       : ((parseFloat(gastosPreexistentes.comidas) || 0) + (parseFloat(gastosPreexistentes.bebidas) || 0));
-      
+
     document.getElementById("gasto-comida-bebida").value = comidaBebidaVal || "";
     document.getElementById("gasto-gasolina").value = gastosPreexistentes.gasolina || "";
     document.getElementById("gasto-otros").value = gastosPreexistentes.otros || "";
     document.getElementById("gasto-otros-detalle").value = gastosPreexistentes.otrosDetalle || "";
-    
+
     showToast("Gastos Cargados", `Se recuperaron los gastos del día ${fechaStr} para edición.`, "warning");
   }
 
@@ -126,7 +126,7 @@ export function recalcularTotalGastosPreview() {
   const comidaBebida = parseFloat(document.getElementById("gasto-comida-bebida").value) || 0;
   const gasolina = parseFloat(document.getElementById("gasto-gasolina").value) || 0;
   const otros = parseFloat(document.getElementById("gasto-otros").value) || 0;
-  
+
   let totalNominas = 0;
   document.querySelectorAll(".payroll-item").forEach(item => {
     const asistio = item.querySelector(".asistencia-switch").checked;
@@ -138,7 +138,7 @@ export function recalcularTotalGastosPreview() {
 
   const totalGasto = central + comidaBebida + gasolina + otros + totalNominas;
   const formatted = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(totalGasto);
-  
+
   const calcElem = document.getElementById("gasto-total-calc");
   if (calcElem) {
     calcElem.innerText = formatted;
@@ -167,7 +167,7 @@ export function setupGastosModule() {
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       const fechaStr = document.getElementById("gasto-fecha-input").value;
-      
+
       // Recopilar nóminas
       const nominas = {};
       document.querySelectorAll(".payroll-item").forEach(item => {
@@ -175,7 +175,7 @@ export function setupGastosModule() {
         const nombre = item.getAttribute("data-nombre");
         const sueldo = parseFloat(item.getAttribute("data-sueldo")) || 0;
         const asistio = item.querySelector(".asistencia-switch").checked;
-        
+
         nominas[empId] = {
           nombre,
           monto: sueldo,
