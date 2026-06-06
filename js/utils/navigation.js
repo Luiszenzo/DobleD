@@ -7,7 +7,7 @@ import { ejecutarReporte } from "../modules/reportes.js";
 
 export function setupNavigation() {
   const navItems = document.querySelectorAll(".nav-item, .mobile-nav-item");
-  
+
   navItems.forEach(item => {
     item.addEventListener("click", () => {
       const tabId = item.getAttribute("data-tab");
@@ -21,9 +21,9 @@ export function setupNavigation() {
 
 export async function switchTab(tabId) {
   if (tabId === appState.activeTab) return;
-  
+
   appState.activeTab = tabId;
-  
+
   // Actualizar clases activas en sidebar y mobile bar
   document.querySelectorAll(".nav-item, .mobile-nav-item").forEach(item => {
     if (item.getAttribute("data-tab") === tabId) {
@@ -37,7 +37,7 @@ export async function switchTab(tabId) {
   document.querySelectorAll(".tab-view").forEach(view => {
     view.classList.remove("active-view");
   });
-  
+
   const activeView = document.getElementById(`view-${tabId}`);
   if (activeView) {
     activeView.classList.add("active-view");
@@ -46,8 +46,8 @@ export async function switchTab(tabId) {
   // Actualizar Título y Subtítulo de cabecera
   const viewTitle = document.getElementById("view-title");
   const viewSubtitle = document.getElementById("view-subtitle");
-  
-  switch(tabId) {
+
+  switch (tabId) {
     case "dashboard":
       if (viewTitle) viewTitle.innerText = "Resumen de Finanzas";
       if (viewSubtitle) viewSubtitle.innerText = "Monitoreo general y balances diarios";

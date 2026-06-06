@@ -163,6 +163,7 @@ export function setupReportesModule() {
       if (val === "personalizado") {
         gInicio.style.display = "flex";
         gFin.style.display = "flex";
+        // Para personalizado el usuario elige las fechas manualmente
       } else {
         gInicio.style.display = "none";
         gFin.style.display = "none";
@@ -181,19 +182,153 @@ export function setupReportesModule() {
           document.getElementById("reporte-fecha-inicio").value = fmt(primerDia);
           document.getElementById("reporte-fecha-fin").value = fmt(ultimoDia);
         }
+
+        // Auto-ejecutar reporte al cambiar periodo rápido
+        ejecutarReporte();
       }
     });
   }
 
-  const btnConsultar = document.getElementById("btn-consultar-reporte");
-  if (btnConsultar) {
-    btnConsultar.addEventListener("click", ejecutarReporte);
+  // Auto-ejecutar cuando cambien las fechas de inicio/fin en modo personalizado
+  const inputInicio = document.getElementById("reporte-fecha-inicio");
+  const inputFin = document.getElementById("reporte-fecha-fin");
+  if (inputInicio) {
+    inputInicio.addEventListener("change", () => {
+      if (inputInicio.value && inputFin && inputFin.value) {
+        ejecutarReporte();
+      }
+    });
+  }
+  if (inputFin) {
+    inputFin.addEventListener("change", () => {
+      if (inputFin.value && inputInicio && inputInicio.value) {
+        ejecutarReporte();
+      }
+    });
   }
 
+  // Botón imprimir: genera una ventana de impresión optimizada para móvil y desktop
   const btnImprimir = document.getElementById("btn-imprimir-reporte");
   if (btnImprimir) {
     btnImprimir.addEventListener("click", () => {
-      window.print();
+      const inicio = document.getElementById("reporte-fecha-inicio")?.value || "";
+      const fin = document.getElementById("reporte-fecha-fin")?.value || "";
+      const titulo = `Reporte Doble D — ${inicio} al ${fin}`;
+
+      const tablaEl = document.getElementById("reportes-tabla");
+      const sumBoxes = document.querySelector(".report-summary-boxes");
+      const tablaHTML = tablaEl ? tablaEl.outerHTML : "";
+      const sumHTML = sumBoxes ? sumBoxes.outerHTML : "";
+
+      const printWindow = window.open("", "_blank");
+      if (!printWindow) return;
+
+      printWindow.document.write(`
+        <!DOCTYPE html>
+        <html lang="es">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>${titulo}</title>
+          <style>
+            *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+            body {
+              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+              font-size: 13px;
+              color: #111;
+              background: #fff;
+              padding: 20px;
+            }
+            h1 {
+              font-size: 18px;
+              font-weight: 700;
+              margin-bottom: 4px;
+              color: #1a1a1a;
+            }
+            .subtitle {
+              font-size: 12px;
+              color: #666;
+              margin-bottom: 20px;
+            }
+            .summary-boxes {
+              display: flex;
+              gap: 12px;
+              flex-wrap: wrap;
+              margin-bottom: 20px;
+            }
+            .report-summary-boxes {
+              display: flex;
+              gap: 12px;
+              flex-wrap: wrap;
+              margin-bottom: 20px;
+            }
+            .summary-box {
+              flex: 1;
+              min-width: 120px;
+              border: 1px solid #ddd;
+              border-radius: 8px;
+              padding: 12px;
+              text-align: center;
+            }
+            .summary-box h4 {
+              font-size: 11px;
+              color: #666;
+              text-transform: uppercase;
+              margin-bottom: 6px;
+            }
+            .summary-box p {
+              font-size: 18px;
+              font-weight: 700;
+              color: #111;
+            }
+            .positive-box { border-color: #22c55e; }
+            .positive-box p { color: #16a34a; }
+            .negative-box { border-color: #ef4444; }
+            .negative-box p { color: #dc2626; }
+            table {
+              width: 100%;
+              border-collapse: collapse;
+              font-size: 12px;
+            }
+            th {
+              background: #f3f4f6;
+              border: 1px solid #e5e7eb;
+              padding: 8px 6px;
+              text-align: left;
+              font-weight: 700;
+              font-size: 11px;
+              text-transform: uppercase;
+              color: #374151;
+            }
+            td {
+              border: 1px solid #e5e7eb;
+              padding: 8px 6px;
+              vertical-align: top;
+            }
+            tr:nth-child(even) td { background: #f9fafb; }
+            .report-gastos-varios-breakdown {
+              font-size: 10px;
+              color: #6b7280;
+              margin-top: 4px;
+              border-top: 1px solid #e5e7eb;
+              padding-top: 3px;
+            }
+            @media print {
+              body { padding: 10px; }
+              button { display: none !important; }
+            }
+          </style>
+        </head>
+        <body>
+          <h1>🍉 Doble D — Reporte Financiero</h1>
+          <p class="subtitle">${titulo} &nbsp;|&nbsp; Generado: ${new Date().toLocaleString('es-MX')}</p>
+          ${sumHTML}
+          ${tablaHTML}
+          <script>window.onload = function() { window.print(); }<\/script>
+        </body>
+        </html>
+      `);
+      printWindow.document.close();
     });
   }
 }
