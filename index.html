@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Doble D | Control de Gastos y Ventas</title>
+  
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="Sistema Premium de Control Financiero y Personal para Negocios de Tianguis Doble D. Administra ventas, gastos y nóminas de forma ágil y móvil.">
+  <meta name="keywords" content="tianguis, control financiero, gastos, ventas, nomina, frutas, verduras, administrador">
+  
+  <!-- Favicon (Fallback emoji) -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍉</text></svg>">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  
+  <!-- FontAwesome & Chart.js -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="./css/styles.css">
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- ==========================================
+         SIDEBAR NAVIGATION (DESKTOP)
+         ========================================== -->
+    <aside class="sidebar">
+      <div class="brand-section">
+        <div class="brand-logo">D</div>
+        <div class="brand-name">
+          <h1>Doble D</h1>
+          <p>Control Tianguis</p>
+        </div>
+      </div>
+      
+      <ul class="nav-menu">
+        <li class="nav-item active" data-tab="dashboard">
+          <a class="nav-link"><i class="fa-solid fa-chart-pie"></i> Resumen</a>
+        </li>
+        <li class="nav-item" data-tab="empleados">
+          <a class="nav-link"><i class="fa-solid fa-users"></i> Empleados</a>
+        </li>
+        <li class="nav-item" data-tab="gastos">
+          <a class="nav-link"><i class="fa-solid fa-cart-shopping"></i> Registrar Gastos</a>
+        </li>
+        <li class="nav-item" data-tab="ventas">
+          <a class="nav-link"><i class="fa-solid fa-cash-register"></i> Registrar Ventas</a>
+        </li>
+        <li class="nav-item" data-tab="reportes">
+          <a class="nav-link"><i class="fa-solid fa-file-invoice-dollar"></i> Reportes</a>
+        </li>
+      </ul>
+      
+      <div class="sidebar-footer">
+        <span style="font-size: 13px; font-weight: 500; color: var(--text-muted);">Tema</span>
+        <button class="theme-toggle-btn" id="theme-toggle" aria-label="Cambiar Tema">
+          <i class="fa-solid fa-sun" id="theme-icon"></i>
+        </button>
+      </div>
+    </aside>
+
+    <!-- ==========================================
+         BOTTOM NAV BAR (MOBILE)
+         ========================================== -->
+    <nav class="mobile-nav-bar">
+      <ul class="mobile-nav-list">
+        <li class="mobile-nav-item active" data-tab="dashboard">
+          <a class="mobile-nav-link"><i class="fa-solid fa-chart-pie"></i><span>Resumen</span></a>
+        </li>
+        <li class="mobile-nav-item" data-tab="empleados">
+          <a class="mobile-nav-link"><i class="fa-solid fa-users"></i><span>Empleados</span></a>
+        </li>
+        <li class="mobile-nav-item" data-tab="gastos">
+          <a class="mobile-nav-link"><i class="fa-solid fa-cart-shopping"></i><span>Gastos</span></a>
+        </li>
+        <li class="mobile-nav-item" data-tab="ventas">
+          <a class="mobile-nav-link"><i class="fa-solid fa-cash-register"></i><span>Ventas</span></a>
+        </li>
+        <li class="mobile-nav-item" data-tab="reportes">
+          <a class="mobile-nav-link"><i class="fa-solid fa-file-invoice-dollar"></i><span>Reportes</span></a>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- ==========================================
+         MAIN CONTENT WINDOW
+         ========================================== -->
+    <main class="main-content">
+      
+      <!-- Top Title & Quick Actions -->
+      <header class="top-header">
+        <div class="header-title">
+          <h2 id="view-title">Resumen de Ventas</h2>
+          <p id="view-subtitle">Monitoreo general y balances diarios</p>
+        </div>
+        <div class="header-actions">
+          <div class="current-date-badge">
+            <i class="fa-solid fa-calendar-days"></i>
+            <span id="header-date">Cargando fecha...</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- ==========================================
+           TAB VIEW: DASHBOARD
+           ========================================== -->
+      <section id="view-dashboard" class="tab-view active-view">
+        
+        <!-- Big Financial Highlights -->
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-header">
+              <span class="metric-title">Venta de Hoy</span>
+              <div class="metric-icon-box"><i class="fa-solid fa-cash-register"></i></div>
+            </div>
+            <div class="metric-value" id="dash-venta-hoy">$0.00</div>
+            <div class="metric-trend" id="dash-venta-trend">
+              <span class="trend-up"><i class="fa-solid fa-circle-info"></i></span> Registro diario
+            </div>
+          </div>
+          
+          <div class="metric-card danger-card">
+            <div class="metric-header">
+              <span class="metric-title">Gasto de Hoy</span>
+              <div class="metric-icon-box"><i class="fa-solid fa-wallet"></i></div>
+            </div>
+            <div class="metric-value" id="dash-gasto-hoy">$0.00</div>
+            <div class="metric-trend" id="dash-gasto-trend">
+              <span>Incluye central y nómina</span>
+            </div>
+          </div>
+          
+          <div class="metric-card accent-card">
+            <div class="metric-header">
+              <span class="metric-title">Ganancia Neta</span>
+              <div class="metric-icon-box"><i class="fa-solid fa-sack-dollar"></i></div>
+            </div>
+            <div class="metric-value" id="dash-ganancia-hoy">$0.00</div>
+            <div class="metric-trend" id="dash-ganancia-trend">
+              <span>Balance neto diario</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dashboard Charts & Overview -->
+        <div class="charts-grid">
+          <div class="glass-card chart-card">
+            <div class="card-header-row">
+              <h3><i class="fa-solid fa-chart-line" style="color: var(--primary);"></i> Desempeño Financiero (Últimos 7 Días)</h3>
+            </div>
+            <div class="chart-container">
+              <canvas id="dashboardWeeklyChart"></canvas>
+            </div>
+          </div>
+          
+          <div class="glass-card chart-card">
+            <div class="card-header-row">
+              <h3><i class="fa-solid fa-chart-pie" style="color: var(--accent);"></i> Gastos de Hoy</h3>
+            </div>
+            <div class="chart-container" style="min-height: 250px;">
+              <canvas id="dashboardExpensesChart"></canvas>
+            </div>
+            <!-- Contenedor para el desglose textual de gastos varios -->
+            <div id="dashboard-gastos-detalles" style="margin-top: 16px; border-top: 1px solid var(--border-color); padding-top: 16px; display: none;">
+              <h4 style="font-size: 13px; font-weight: 700; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 8px;">Detalle de Gastos Varios:</h4>
+              <ul id="dashboard-gastos-detalles-lista" style="list-style: none; display: flex; flex-direction: column; gap: 8px; font-size: 14px;">
+                <!-- Dinámicamente cargado -->
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Access Banner -->
+        <div class="glass-card" style="padding: 24px; display: flex; flex-wrap: wrap; gap: 20px; align-items: center; justify-content: space-between; background: linear-gradient(135deg, var(--bg-card), var(--primary-glow));">
+          <div>
+            <h4 style="font-size: 16px; font-weight: 700; color: var(--text-primary);">¿Necesitas registrar nuevos datos?</h4>
+            <p style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">Usa los botones rápidos para registrar tus movimientos de hoy al instante.</p>
+          </div>
+          <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+            <button class="btn btn-primary" onclick="window.switchTab('gastos')">
+              <i class="fa-solid fa-cart-shopping"></i> Registrar Gasto
+            </button>
+            <button class="btn btn-secondary" onclick="window.switchTab('ventas')">
+              <i class="fa-solid fa-cash-register"></i> Registrar Venta
+            </button>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ==========================================
+           TAB VIEW: EMPLEADOS (ADMINISTRADOR)
+           ========================================== -->
+      <section id="view-empleados" class="tab-view">
+        
+        <div class="glass-card">
+          <div class="card-header-row">
+            <div>
+              <h3><i class="fa-solid fa-users" style="color: var(--primary);"></i> Listado de Empleados</h3>
+              <p style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">Da de alta, edita salarios o da de baja a tu equipo de trabajo.</p>
+            </div>
+            <button class="btn btn-primary" id="btn-add-empleado-modal">
+              <i class="fa-solid fa-user-plus"></i> Nuevo Empleado
+            </button>
+          </div>
+
+          <!-- Employees Profile Grid -->
+          <div class="cards-grid" id="empleados-grid">
+            <!-- Dynamically Loaded Card Profiles -->
+            <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-muted);">
+              <i class="fa-solid fa-spinner fa-spin" style="font-size: 24px;"></i>
+              <p style="margin-top: 12px;">Cargando listado de personal...</p>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ==========================================
+           TAB VIEW: GASTOS (CON ASISTENCIA)
+           ========================================== -->
+      <section id="view-gastos" class="tab-view">
+        
+        <div class="glass-card">
+          <div class="card-header-row">
+            <div>
+              <h3><i class="fa-solid fa-file-invoice" style="color: var(--primary);"></i> Registrar Gastos del Día</h3>
+              <p style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">Ingresa tus compras de central, viáticos e indica quién asistió hoy para calcular la nómina.</p>
+            </div>
+            
+            <div class="form-group" style="width: auto; min-width: 160px;">
+              <input type="date" class="form-control" id="gasto-fecha-input" aria-label="Fecha de Gastos">
+            </div>
+          </div>
+
+          <form id="gasto-form">
+            <div class="form-grid">
+              
+              <div class="form-group">
+                <label class="form-label" for="gasto-central">Central de Abastos ($)</label>
+                <input type="number" step="0.01" class="form-control" id="gasto-central" placeholder="Ej. 3500.00" min="0">
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label" for="gasto-comida-bebida">Comida y Bebida ($)</label>
+                <input type="number" step="0.01" class="form-control" id="gasto-comida-bebida" placeholder="Ej. 230.00" min="0">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="gasto-gasolina">Gasolina / Pasaje ($)</label>
+                <input type="number" step="0.01" class="form-control" id="gasto-gasolina" placeholder="Ej. 250.00" min="0">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="gasto-otros">Otros Gastos ($)</label>
+                <input type="number" step="0.01" class="form-control" id="gasto-otros" placeholder="Ej. 100.00" min="0">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="gasto-otros-detalle">Detalle de Otros Gastos</label>
+                <input type="text" class="form-control" id="gasto-otros-detalle" placeholder="Ej. Bolsas, Rafia...">
+              </div>
+
+            </div>
+
+            <!-- Attendance Check & Payroll List -->
+            <div style="border-top: 1px solid var(--border-color); margin-top: 32px; padding-top: 24px;">
+              <h4 style="font-size: 16px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-clipboard-user" style="color: var(--primary);"></i> Control de Nómina y Asistencia
+              </h4>
+              <p style="font-size: 13px; color: var(--text-secondary);">
+                Desactiva los empleados que hayan faltado hoy. Su sueldo diario se calculará como $0 y se restará del gasto total del día de forma automática.
+              </p>
+              
+              <div class="payroll-list" id="asistencia-payroll-list">
+                <!-- Dynamically populated employees attendance checklist -->
+                <div style="text-align: center; padding: 24px; color: var(--text-muted);">
+                  Cargando nómina de empleados...
+                </div>
+              </div>
+            </div>
+
+            <!-- Financial Summary Box -->
+            <div class="glass-card" style="background: var(--bg-primary); border-color: var(--border-color); margin-top: 32px; padding: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+              <div>
+                <span class="form-label">Total Gasto Estimado</span>
+                <h3 style="font-size: 32px; font-weight: 800; color: var(--danger);" id="gasto-total-calc">$0.00</h3>
+              </div>
+              <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                <button type="button" class="btn btn-secondary btn-lg" id="btn-limpiar-gastos">Limpiar Formulario</button>
+                <button type="submit" class="btn btn-primary btn-lg">
+                  <i class="fa-solid fa-floppy-disk"></i> Guardar Gastos
+                </button>
+              </div>
+            </div>
+
+          </form>
+        </div>
+
+      </section>
+
+      <!-- ==========================================
+           TAB VIEW: VENTAS
+           ========================================== -->
+      <section id="view-ventas" class="tab-view">
+        
+        <div class="glass-card">
+          <div class="card-header-row">
+            <div>
+              <h3><i class="fa-solid fa-cash-register" style="color: var(--primary);"></i> Registrar Ventas del Día</h3>
+              <p style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">Ingresa el total recaudado en caja y las horas de jornada realizadas hoy.</p>
+            </div>
+            
+            <div class="form-group" style="width: auto; min-width: 160px;">
+              <input type="date" class="form-control" id="venta-fecha-input" aria-label="Fecha de Ventas">
+            </div>
+          </div>
+
+          <form id="venta-form">
+            <div class="form-grid">
+              
+              <div class="form-group">
+                <label class="form-label" for="venta-total">Venta Total del Día ($)</label>
+                <input type="number" step="0.01" class="form-control" id="venta-total" placeholder="Ej. 8500.00" required min="0">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="venta-horas">Horas Trabajadas de la Jornada</label>
+                <input type="number" step="0.5" class="form-control" id="venta-horas" placeholder="Ej. 8" required min="0" max="24">
+              </div>
+
+              <div class="form-group form-group-full">
+                <label class="form-label" for="venta-notas">Notas / Incidencias del Día</label>
+                <textarea class="form-control" id="venta-notas" rows="3" placeholder="Ej. Buen clima. Se vendió todo el jitomate. Tianguis de los sábados..."></textarea>
+              </div>
+
+            </div>
+
+            <!-- Action Buttons -->
+            <div style="border-top: 1px solid var(--border-color); padding-top: 24px; display: flex; justify-content: flex-end; gap: 12px;">
+              <button type="button" class="btn btn-secondary" id="btn-limpiar-ventas">Limpiar Formulario</button>
+              <button type="submit" class="btn btn-primary">
+                <i class="fa-solid fa-floppy-disk"></i> Guardar Ventas
+              </button>
+            </div>
+          </form>
+        </div>
+
+      </section>
+
+      <!-- ==========================================
+           TAB VIEW: REPORTES
+           ========================================== -->
+      <section id="view-reportes" class="tab-view">
+        
+        <!-- Interactive Date Filters bar -->
+        <div class="filter-bar">
+          <div class="form-group">
+            <label class="form-label" for="reporte-tipo">Periodo Rápido</label>
+            <select class="form-control" id="reporte-tipo">
+              <option value="diario">Hoy (Diario)</option>
+              <option value="semanal" selected>Esta Semana</option>
+              <option value="mensual">Este Mes</option>
+              <option value="personalizado">Personalizado...</option>
+            </select>
+          </div>
+
+          <div class="form-group" id="group-fecha-inicio">
+            <label class="form-label" for="reporte-fecha-inicio">Desde</label>
+            <input type="date" class="form-control" id="reporte-fecha-inicio">
+          </div>
+
+          <div class="form-group" id="group-fecha-fin">
+            <label class="form-label" for="reporte-fecha-fin">Hasta</label>
+            <input type="date" class="form-control" id="reporte-fecha-fin">
+          </div>
+
+          <button class="btn btn-primary" id="btn-consultar-reporte">
+            <i class="fa-solid fa-magnifying-glass"></i> Consultar
+          </button>
+
+          <button class="btn btn-secondary" id="btn-imprimir-reporte" aria-label="Imprimir Reporte">
+            <i class="fa-solid fa-print"></i> Imprimir
+          </button>
+        </div>
+
+        <!-- Net Profit and Overall highlights of the filtered range -->
+        <div class="report-summary-boxes">
+          <div class="summary-box">
+            <h4>Total Ventas</h4>
+            <p id="rep-total-ventas">$0.00</p>
+          </div>
+          <div class="summary-box">
+            <h4>Total Gastos</h4>
+            <p id="rep-total-gastos" style="color: var(--danger);">$0.00</p>
+          </div>
+          <div class="summary-box positive-box" id="rep-ganancia-box">
+            <h4>Ganancia Neta</h4>
+            <p id="rep-ganancia-neta">$0.00</p>
+          </div>
+        </div>
+
+        <!-- Detailed lists and breakdown -->
+        <div class="glass-card">
+          <div class="card-header-row">
+            <h3><i class="fa-solid fa-list-check" style="color: var(--primary);"></i> Desglose Detallado del Periodo</h3>
+          </div>
+
+          <div class="table-responsive">
+            <table class="custom-table" id="reportes-tabla">
+              <thead>
+                <tr>
+                  <th>Fecha</th>
+                  <th>Ventas ($)</th>
+                  <th>Gastos Central ($)</th>
+                  <th>Nómina ($)</th>
+                  <th>Gastos Varios ($)</th>
+                  <th>Gastos Totales ($)</th>
+                  <th>Ganancia Neta ($)</th>
+                </tr>
+              </thead>
+              <tbody id="reporte-tabla-cuerpo">
+                <tr>
+                  <td colspan="7" style="text-align: center; color: var(--text-muted);">
+                    Selecciona un rango y haz clic en Consultar.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ==========================================
+       MODAL DIALOG: ADD/EDIT EMPLOYEE
+       ========================================== -->
+  <div class="modal-overlay" id="empleado-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="empleado-modal-title">Agregar Nuevo Empleado</h3>
+        <button class="modal-close-btn" id="btn-close-empleado-modal" aria-label="Cerrar Modal"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="empleado-form">
+        <input type="hidden" id="emp-edit-id">
+        <div class="modal-body">
+          <div style="display: flex; flex-direction: column; gap: 20px;">
+            
+            <div class="form-group">
+              <label class="form-label" for="emp-nombre">Nombre Completo</label>
+              <input type="text" class="form-control" id="emp-nombre" placeholder="Ej. Pedro Picapiedra" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="emp-sueldo">Sueldo Diario ($)</label>
+              <input type="number" step="0.01" class="form-control" id="emp-sueldo" placeholder="Ej. 350.00" required min="0">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="emp-telefono">Teléfono de Contacto</label>
+              <input type="tel" class="form-control" id="emp-telefono" placeholder="Ej. 5512345678">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="emp-puesto">Rol / Puesto</label>
+              <input type="text" class="form-control" id="emp-puesto" placeholder="Ej. Cargador, Cajero, Chofer...">
+            </div>
+
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="btn-cancel-empleado-modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar Empleado</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       TOAST FLOTANTE CONTENEDOR DE NOTIFICACIONES
+       ========================================== -->
+  <div class="toast-container" id="toast-container" aria-live="polite"></div>
+
+  <!-- Main Controller Application Module -->
+  <script type="module" src="./js/app.js"></script>
+
+</body>
+</html>
